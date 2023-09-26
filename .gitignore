@@ -53,3 +53,6 @@ rsconnect/
 *.png
 *.jpeg
 *.txt
+
+#ignore the data folder
+data/
