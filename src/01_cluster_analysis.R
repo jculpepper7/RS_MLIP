@@ -50,18 +50,21 @@ off_trends_clean <- ice_off_trends %>%
 #First, scale the data
 on_scaled <- scale(on_trends_clean)
 
-on_clust <- eclust(on_scaled, "kmeans", k = 2, nstart = 25)
+on_clust <- eclust(on_scaled, "kmeans", k = 3, nstart = 25)
 
-fviz_silhouette(on_clust)
+#fviz_silhouette(on_clust)
 
-fviz_cluster(on_clust) #I get an error here because the data is only one column (slope). I would need another column to visualize.
+#fviz_cluster(on_clust) #I get an error here because the data is only one column (slope). I would need another column to visualize.
 
 on_clusters <- as_tibble(on_clust$cluster)
 
 #Join on_clusters with on_trends_clean
 
 cluster_on_join <- ice_on_trends %>% 
-  bind_cols(on_clusters)
+  bind_cols(on_clusters) %>% 
+  mutate(
+    cluster = as.factor(value)
+  )
 
 
 #Visualize
@@ -72,8 +75,8 @@ na <- rnaturalearth::ne_states(
 full_map_on <- ggplot() +
   ggplot2::geom_sf(data = na) +
   coord_sf(xlim = c(-148, -103), ylim = c(34, 64), expand = FALSE)+
-  geom_point(data = cluster_on_join %>% filter(p.value >= 0.05), aes(x = pour_long, y = pour_lat, fill = value), size = 2, pch =21, stroke = 0.5)+
-  geom_point(data = cluster_on_join %>% filter(p.value <= 0.05), aes(x = pour_long, y = pour_lat, fill = value), stroke = 0.5, pch = 24, size = 2)+
+  geom_point(data = cluster_on_join %>% filter(p.value >= 0.05), aes(x = pour_long, y = pour_lat, fill = cluster), size = 2, pch =21, stroke = 0.5)+
+  geom_point(data = cluster_on_join %>% filter(p.value <= 0.05), aes(x = pour_long, y = pour_lat, fill = cluster), stroke = 0.5, pch = 24, size = 2)+
   #scale_fill_gradient2(midpoint = 0, low = 'blue', mid = 'white', high = 'red', space = 'Lab')+
   #scale_colour_gradient(low = 'blue', high = 'red', space = 'Lab')+
   xlab("")+
