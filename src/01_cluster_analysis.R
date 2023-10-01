@@ -47,6 +47,10 @@ off_trends_clean <- ice_off_trends %>%
 
 # 3. Cluster analysis -----------------------------------------------------
 
+
+# **3a. Ice on cluster analysis -------------------------------------------
+
+
 #First, scale the data
 on_scaled <- scale(on_trends_clean)
 
@@ -77,8 +81,7 @@ full_map_on <- ggplot() +
   coord_sf(xlim = c(-148, -103), ylim = c(34, 64), expand = FALSE)+
   geom_point(data = cluster_on_join %>% filter(p.value >= 0.05), aes(x = pour_long, y = pour_lat, fill = cluster), size = 2, pch =21, stroke = 0.5)+
   geom_point(data = cluster_on_join %>% filter(p.value <= 0.05), aes(x = pour_long, y = pour_lat, fill = cluster), stroke = 0.5, pch = 24, size = 2)+
-  #scale_fill_gradient2(midpoint = 0, low = 'blue', mid = 'white', high = 'red', space = 'Lab')+
-  #scale_colour_gradient(low = 'blue', high = 'red', space = 'Lab')+
+  scale_fill_viridis_d(begin = 0.2, end = 0.95)+
   xlab("")+
   ylab("")+
   labs(fill = 'Ice On Trend \nDays/yr')+
@@ -91,4 +94,68 @@ full_map_on <- ggplot() +
   )
 full_map_on
 
-ggsave(here("results/ice_on_clusters.jpeg"), dpi = 300, width = 6, height = 6, units = "in") #, width = 15, height = 15, units = "in"
+#ggsave(here("results/ice_on_clusters.jpeg"), dpi = 300, width = 6, height = 6, units = "in") #, width = 15, height = 15, units = "in"
+
+
+#Just looking at some plots
+
+ggplot()+
+  geom_boxplot(data = cluster_on_join, aes(x = cluster, y = elevation, fill = cluster))+
+  scale_fill_viridis_d(begin = 0.2, end = 0.95)+
+  theme_classic()
+  
+# **3a. Ice off cluster analysis -------------------------------------------
+
+
+#First, scale the data
+off_scaled <- scale(off_trends_clean)
+
+off_clust <- eclust(off_scaled, "kmeans", k = 3, nstart = 25)
+
+#fviz_silhouette(on_clust)
+
+#fviz_cluster(on_clust) #I get an error here because the data is only one column (slope). I would need another column to visualize.
+
+off_clusters <- as_tibble(off_clust$cluster)
+
+#Join on_clusters with on_trends_clean
+
+cluster_off_join <- ice_off_trends %>% 
+  bind_cols(off_clusters) %>% 
+  mutate(
+    cluster = as.factor(value)
+  )
+
+
+#Visualize
+
+na <- rnaturalearth::ne_states(
+  returnclass = "sf") 
+
+full_map_off <- ggplot() +
+  ggplot2::geom_sf(data = na) +
+  coord_sf(xlim = c(-148, -103), ylim = c(34, 64), expand = FALSE)+
+  geom_point(data = cluster_off_join %>% filter(p.value >= 0.05), aes(x = pour_long, y = pour_lat, fill = cluster), size = 2, pch =21, stroke = 0.5)+
+  geom_point(data = cluster_off_join %>% filter(p.value <= 0.05), aes(x = pour_long, y = pour_lat, fill = cluster), stroke = 0.5, pch = 24, size = 2)+
+  scale_fill_viridis_d(begin = 0.2, end = 0.95)+
+  xlab("")+
+  ylab("")+
+  labs(fill = 'Ice Off Trend \nDays/yr')+
+  labs(fill = '', tag = 'A')+
+  theme(
+    legend.position = 'right',
+    legend.key.height = unit(0.4, 'in'),
+    aspect.ratio = 1
+    #plot.margin = unit(c(0, 0, 0, 1), 'in')
+  )
+full_map_off
+
+#ggsave(here("results/ice_off_clusters.jpeg"), dpi = 300, width = 6, height = 6, units = "in") #, width = 15, height = 15, units = "in"
+
+
+#Just looking at some plots
+
+ggplot()+
+  geom_boxplot(data = cluster_off_join, aes(x = cluster, y = elevation, fill = cluster))+
+  scale_fill_viridis_d(begin = 0.2, end = 0.95)+
+  theme_classic()
