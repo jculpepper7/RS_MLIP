@@ -7,6 +7,8 @@
 library(tidyverse)
 library(here)
 library(factoextra)
+library(rnaturalearth)
+library(rnaturalearthdata)
 
 # 1. Import trend data ----------------------------------------------------
 
@@ -100,10 +102,36 @@ full_map_on
 #Just looking at some plots
 
 ggplot()+
-  geom_boxplot(data = cluster_on_join, aes(x = cluster, y = elevation, fill = cluster))+
+  geom_boxplot(data = cluster_on_join, aes(x = cluster, y = wshd_area, fill = cluster))+
   scale_fill_viridis_d(begin = 0.2, end = 0.95)+
+  ylim(c(-5, 25))+
   theme_classic()
-  
+
+
+# **Ice on - Kruskal-Wallis Test ------------------------------------------
+
+# null = medians are the same across groups
+# alt hyp = medians are not equal
+
+#latitude
+kruskal.test(pour_lat ~ cluster, data = cluster_on_join) #alt hyp
+#longitude
+kruskal.test(pour_long ~ cluster, data = cluster_on_join) #alt hyp
+#elevation
+kruskal.test(elevation ~ cluster, data = cluster_on_join) #alt hyp
+#Average depth
+kruskal.test(depth_avg ~ cluster, data = cluster_on_join) #null
+#Water residence time
+kruskal.test(res_time ~ cluster, data = cluster_on_join) #null
+#Shoreline development
+kruskal.test(shore_dev ~ cluster, data = cluster_on_join) #alt hyp
+#Slope 100
+kruskal.test(slope_100 ~ cluster, data = cluster_on_join) #alt hyp
+#Total volume
+kruskal.test(vol_total ~ cluster, data = cluster_on_join) #alt hyp
+#Watershed area
+kruskal.test(wshd_area ~ cluster, data = cluster_on_join) #alt hyp
+
 # **3a. Ice off cluster analysis -------------------------------------------
 
 
