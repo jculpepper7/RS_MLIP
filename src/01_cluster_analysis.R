@@ -102,11 +102,18 @@ full_map_on
 #Just looking at some plots
 
 ggplot()+
-  geom_boxplot(data = cluster_on_join, aes(x = cluster, y = wshd_area, fill = cluster))+
+  geom_boxplot(data = cluster_on_join, aes(x = cluster, y = pour_lat, fill = cluster))+
   scale_fill_viridis_d(begin = 0.2, end = 0.95)+
-  ylim(c(-5, 25))+
-  theme_classic()
+  #ylim(c(-5, 25))+
+  ylab('Elevation (m)')+
+  xlab('Cluster')+
+  theme_classic()+
+  theme(
+    legend.title = element_blank(),
+    text = element_text(size = 25)
+  )
 
+ggsave(here('results/box_test.png'), dpi = 300, width = 8, height = 5, units = 'in')
 
 # **Ice on - Kruskal-Wallis Test ------------------------------------------
 
@@ -187,3 +194,128 @@ ggplot()+
   geom_boxplot(data = cluster_off_join, aes(x = cluster, y = elevation, fill = cluster))+
   scale_fill_viridis_d(begin = 0.2, end = 0.95)+
   theme_classic()
+
+
+
+# 6. Making a data frame for the Climate NA data --------------------------
+
+#Isolate the required data and standardize the column names required for the Climate NA software
+#Only 5 columns needed: ID1, ID2, lat, long, el
+#ID1: will be Hylak_id
+#ID2: will be ice_on (or off)
+#lat: pour_lat from hydrolakes
+#long: pour_long from hydrolakes
+#el: elevation from hydrolakes
+
+
+# Ice on data
+ice_on_climate_na <- cluster_on_join %>% 
+  select(
+    ID1 = Hylak_id, 
+    lat = pour_lat, 
+    long = pour_long, 
+    el = elevation
+  ) %>%  
+  mutate(
+    ID2 = as.factor('ice_on'),
+  ) %>%
+  select(ID1, ID2, lat, long, el)
+
+#write_csv(ice_on_climate_na, here('data/ice_on_climate_na.csv'))
+
+# Ice off data
+ice_off_climate_na <- cluster_off_join %>% 
+  select(
+    ID1 = Hylak_id, 
+    lat = pour_lat, 
+    long = pour_long, 
+    el = elevation
+  ) %>%  
+  mutate(
+    ID2 = as.factor('ice_off'),
+  ) %>%
+  select(ID1, ID2, lat, long, el)
+
+#write_csv(ice_off_climate_na, here('data/ice_off_climate_na.csv'))
+
+# #Turns out that Climate NA can only handle about 200 entries at once, so I
+# #need to breakup the datasets into segments of 200
+
+##
+#NOTE: It actually ended up working with the full data sets, so I am going to 
+#      mute all of this code.
+# 
+# # Ice on segments
+# #Rows 1:200
+# ice_on_climate_na_01 <- ice_on_climate_na %>% 
+#   slice(c(1:200))
+# 
+# write_csv(ice_on_climate_na_01, here('data/ice_on_climate_na_01.csv'))
+# 
+# #Rows 201:400
+# ice_on_climate_na_02 <- ice_on_climate_na %>% 
+#   slice(c(201:400))
+# 
+# write_csv(ice_on_climate_na_02, here('data/ice_on_climate_na_02.csv'))
+# 
+# #Rows 401:600
+# ice_on_climate_na_03 <- ice_on_climate_na %>% 
+#   slice(c(401:600))
+# 
+# write_csv(ice_on_climate_na_03, here('data/ice_on_climate_na_03.csv'))
+# 
+# #Rows 601:723
+# ice_on_climate_na_04 <- ice_on_climate_na %>% 
+#   slice(c(601:723))
+# 
+# write_csv(ice_on_climate_na_04, here('data/ice_on_climate_na_04.csv'))
+# 
+# 
+# # Ice off segments
+# #Rows 1:200
+# ice_off_climate_na_01 <- ice_off_climate_na %>% 
+#   slice(c(1:10))
+# 
+# write_csv(ice_off_climate_na_01, here('data/ice_off_climate_na_01.csv'))
+# 
+# #Rows 201:400
+# ice_off_climate_na_02 <- ice_off_climate_na %>% 
+#   slice(c(201:400))
+# 
+# write_csv(ice_off_climate_na_02, here('data/ice_off_climate_na_02.csv'))
+# 
+# #Rows 401:600
+# ice_off_climate_na_03 <- ice_off_climate_na %>% 
+#   slice(c(401:600))
+# 
+# write_csv(ice_off_climate_na_03, here('data/ice_off_climate_na_03.csv'))
+# 
+# #Rows 601:800
+# ice_off_climate_na_04 <- ice_off_climate_na %>% 
+#   slice(c(601:800))
+# 
+# write_csv(ice_off_climate_na_04, here('data/ice_off_climate_na_04.csv'))
+# 
+# #Rows 801:1000
+# ice_off_climate_na_05 <- ice_off_climate_na %>% 
+#   slice(c(801:1000))
+# 
+# write_csv(ice_off_climate_na_05, here('data/ice_off_climate_na_05.csv'))
+# 
+# #Rows 1001:1200
+# ice_off_climate_na_06 <- ice_off_climate_na %>% 
+#   slice(c(1001:1200))
+# 
+# write_csv(ice_off_climate_na_06, here('data/ice_off_climate_na_06.csv'))
+# 
+# #Rows 1201:1400
+# ice_off_climate_na_07 <- ice_off_climate_na %>% 
+#   slice(c(1201:1400))
+# 
+# write_csv(ice_off_climate_na_07, here('data/ice_off_climate_na_07.csv'))
+# 
+# #Rows 1401:1548
+# ice_off_climate_na_08 <- ice_off_climate_na %>% 
+#   slice(c(1401:1548))
+# 
+# write_csv(ice_off_climate_na_08, here('data/ice_off_climate_na_08.csv'))
