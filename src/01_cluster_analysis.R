@@ -197,7 +197,7 @@ ggplot()+
 
 
 
-# 6. Making a data frame for the Climate NA data --------------------------
+# 4. Making a data frame for the Climate NA data --------------------------
 
 #Isolate the required data and standardize the column names required for the Climate NA software
 #Only 5 columns needed: ID1, ID2, lat, long, el
@@ -237,4 +237,6 @@ ice_off_climate_na <- cluster_off_join %>%
   select(ID1, ID2, lat, long, el)
 
 #write_csv(ice_off_climate_na, here('data/ice_off_climate_na.csv'))
+
+
 
